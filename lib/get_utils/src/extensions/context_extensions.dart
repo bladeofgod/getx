@@ -170,11 +170,3 @@ extension ContextExt on BuildContext {
   }
 }
 
-extension IterableExt<T> on Iterable<T> {
-  /// The first element, or `null` if the iterable is empty.
-  T? get firstOrNull {
-    var iterator = this.iterator;
-    if (iterator.moveNext()) return iterator.current;
-    return null;
-  }
-}
