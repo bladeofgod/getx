@@ -1,28 +1,36 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
+
+import 'package:example_nav2/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    // await tester.pumpWidget(const MyApp());
+  tearDown(Get.reset);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  testWidgets('example_nav2 state-only demo works', (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    expect(find.byKey(const Key('auth_status_text')), findsOneWidget);
+    expect(find.text('Guest'), findsOneWidget);
+    expect(find.byKey(const Key('selected_product_text')), findsOneWidget);
+    expect(find.text('Selected: Desk Lamp'), findsOneWidget);
+    expect(find.byKey(const Key('cart_count_text')), findsOneWidget);
+    expect(find.text('Cart: 0'), findsOneWidget);
+
+    await tester.tap(find.text('Login'));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Logged in'), findsOneWidget);
+    expect(find.text('You are logged in.'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('product_tile_2')));
+    await tester.pump();
+
+    expect(find.text('Selected: Noise Cancelling Headphones'), findsOneWidget);
+
+    await tester.tap(find.text('Add to cart'));
+    await tester.pump();
+
+    expect(find.text('Cart: 1'), findsOneWidget);
   });
 }

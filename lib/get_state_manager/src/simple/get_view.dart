@@ -1,36 +1,62 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../instance_manager.dart';
-import '../../../utils.dart';
+import '../../../get_utils/src/extensions/event_loop_extensions.dart';
 import 'get_state.dart';
 import 'get_widget_cache.dart';
 
 /// GetView is a great way of quickly access your Controller
 /// without having to call `Get.find<AwesomeController>()` yourself.
 ///
+/// It automatically does `Get.find<T>()` for you and provides a
+/// [controller] getter to access the registered controller.
+///
 /// Sample:
-/// ```
+/// ```dart
+/// // 1. Define your controller
 /// class AwesomeController extends GetxController {
-///   final String title = 'My Awesome View';
+///   final title = 'My Awesome View'.obs;
+///   final count = 0.obs;
+///
+///   void increment() => count.value++;
 /// }
 ///
-/// class AwesomeView extends GetView<AwesomeController> {
-///   /// if you need you can pass the tag for
-///   /// Get.find<AwesomeController>(tag:"myTag");
-///   @override
-///   final String tag = "myTag";
+/// // 2. Register the controller (e.g. in your route or main)
+/// // Get.put(AwesomeController());
 ///
-///   AwesomeView({Key key}):super(key:key);
+/// // 3. Create a view that extends GetView
+/// class AwesomeView extends GetView<AwesomeController> {
+///   const AwesomeView({super.key});
 ///
 ///   @override
 ///   Widget build(BuildContext context) {
-///     return Container(
-///       padding: EdgeInsets.all(20),
-///       child: Text( controller.title ),
+///     return Scaffold(
+///       appBar: AppBar(title: Obx(() => Text(controller.title.value))),
+///       body: Center(
+///         child: Obx(() => Text('Count: ${controller.count.value}')),
+///       ),
+///       floatingActionButton: FloatingActionButton(
+///         onPressed: controller.increment,
+///         child: const Icon(Icons.add),
+///       ),
 ///     );
 ///   }
 /// }
-///``
+///
+/// // 4. If you need a tagged controller, override [tag]:
+/// class AnotherView extends GetView<AwesomeController> {
+///   @override
+///   final String tag = "myTag";
+///
+///   const AnotherView({super.key});
+///
+///   @override
+///   Widget build(BuildContext context) {
+///     // This will call Get.find<AwesomeController>(tag: "myTag")
+///     return Text(controller.title.value);
+///   }
+/// }
+/// ```
 abstract class GetView<T> extends StatelessWidget {
   const GetView({super.key});
 

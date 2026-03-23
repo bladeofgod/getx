@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../get_core/get_core.dart';
-import '../../get_navigation/src/router_report.dart';
 import 'lifecycle.dart';
 
 class InstanceInfo {
@@ -31,17 +30,15 @@ extension ResetInstance on GetInterface {
   /// Clears all registered instances (and/or tags).
   /// Even the persistent ones.
   /// This should be used at the end or tearDown of unit tests.
-  ///
-  /// `clearFactory` clears the callbacks registered by [lazyPut]
-  /// `clearRouteBindings` clears Instances associated with routes.
-  ///
-  bool resetInstance({bool clearRouteBindings = true}) {
-    //  if (clearFactory) _factory.clear();
-    // deleteAll(force: true);
-    if (clearRouteBindings) RouterReportManager.instance.clearRouteKeys();
+  bool resetInstance() {
     Inst._singl.clear();
-
     return true;
+  }
+
+  /// Full reset – clears all instances.
+  /// Convenient shorthand for [resetInstance].
+  void reset() {
+    resetInstance();
   }
 }
 
@@ -51,24 +48,6 @@ extension Inst on GetInterface {
   /// Holds references to every registered Instance when using
   /// `Get.put()`
   static final Map<String, _InstanceBuilderFactory> _singl = {};
-
-  /// Holds a reference to every registered callback when using
-  /// `Get.lazyPut()`
-  // static final Map<String, _Lazy> _factory = {};
-
-  // void injector<S>(
-  //   InjectorBuilderCallback<S> fn, {
-  //   String? tag,
-  //   bool fenix = false,
-  //   //  bool permanent = false,
-  // }) {
-  //   lazyPut(
-  //     () => fn(this),
-  //     tag: tag,
-  //     fenix: fenix,
-  //     // permanent: permanent,
-  //   );
-  // }
 
   S put<S>(
     S dependency, {
@@ -97,10 +76,10 @@ extension Inst on GetInterface {
   ///
   /// If you need to make use of GetxController's life-cycle
   /// (`onInit(), onStart(), onClose()`) [fenix] is a great choice to mix with
-  /// `GetBuilder()` and `GetX()` widgets, and/or `GetMaterialApp` Navigation.
+  /// `GetBuilder()` and `GetX()` widgets.
   ///
   /// You could use `Get.lazyPut(fenix:true)` in your app's `main()` instead
-  /// of `Bindings()` for each `GetPage`.
+  /// of creating separate `Binding` classes.
   /// And the memory management will be similar.
   ///
   /// Subsequent calls to `Get.lazyPut()` with the same parameters
@@ -198,13 +177,6 @@ extension Inst on GetInterface {
         _singl[key]!.isInit = true;
       }
       i = _startController<S>(tag: name);
-
-      if (isSingleton) {
-        if (Get.smartManagement != SmartManagement.onlyBuilder) {
-          RouterReportManager.instance
-              .reportDependencyLinkedToRoute(_getKey(S, name));
-        }
-      }
     }
     return i;
   }
@@ -252,9 +224,6 @@ extension Inst on GetInterface {
         Get.log('Instance "$S" has been initialized');
       } else {
         Get.log('Instance "$S" with tag "$tag" has been initialized');
-      }
-      if (!_singl[key]!.isSingleton!) {
-        RouterReportManager.instance.appendRouteByCreate(i);
       }
     }
     return i;

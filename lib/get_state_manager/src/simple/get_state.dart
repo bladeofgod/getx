@@ -623,10 +623,9 @@ class BindError<T> extends Error {
   }
 }
 
-/// [Binding] should be extended.
-/// When using `GetMaterialApp`, all `GetPage`s and navigation
-/// methods (like Get.to()) have a `binding` property that takes an
-/// instance of Bindings to manage the
-/// dependencies() (via Get.put()) for the Route you are opening.
+/// [Binding] should be extended to group dependency registrations.
+///
+/// Override [dependencies] to return a list of [Bind] instances that
+/// will be registered when the binding is applied.
 // ignore: one_member_abstracts
 abstract class Binding extends BindingsInterface<List<Bind>> {}

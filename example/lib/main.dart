@@ -1,216 +1,89 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-// import 'lang/translation_service.dart';
-// import 'routes/app_pages.dart';
-// import 'shared/logger/logger_utils.dart';
-
-// void main() {
-//   runApp(const MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GetMaterialApp(
-//       theme: ThemeData(useMaterial3: true),
-//       debugShowCheckedModeBanner: false,
-//       enableLog: true,
-//       logWriterCallback: Logger.write,
-//       initialRoute: AppPages.INITIAL,
-//       getPages: AppPages.routes,
-//       locale: TranslationService.locale,
-//       fallbackLocale: TranslationService.fallbackLocale,
-//       translations: TranslationService(),
-//     );
-//   }
-// }
-
-/// Nav 2 snippet
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      getPages: [
-        GetPage(
-            participatesInRootNavigator: true,
-            name: '/first',
-            page: () => const First()),
-        GetPage(
-          name: '/second',
-          page: () => const Second(),
-          transition: Transition.downToUp,
-        ),
-        GetPage(
-          name: '/third',
-          page: () => const Third(),
-        ),
-        GetPage(
-          name: '/fourth',
-          page: () => const Fourth(),
-        ),
-      ],
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
+      home: const CounterPage(),
     );
   }
 }
 
-class FirstController extends GetxController {
-  @override
-  void onClose() {
-    print('on close first');
-    super.onClose();
+class CounterController extends GetxController {
+  int simpleCount = 0;
+  final rxCount = 0.obs;
+
+  void increment() {
+    simpleCount++;
+    rxCount.value++;
+    update();
   }
 }
 
-class First extends StatelessWidget {
-  const First({Key? key}) : super(key: key);
+class CounterPage extends StatelessWidget {
+  const CounterPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    print('First rebuild');
-    Get.put(FirstController());
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('page one'),
-        leading: IconButton(
-          icon: const Icon(Icons.more),
-          onPressed: () {
-            Get.snackbar(
-              'title',
-              "message",
-              mainButton:
-                  TextButton(onPressed: () {}, child: const Text('button')),
-              isDismissible: true,
-              duration: Duration(seconds: 5),
-              snackbarStatus: (status) => print(status),
-            );
-            // print('THEME CHANGED');
-            // Get.changeTheme(
-            //     Get.isDarkMode ? ThemeData.light() : ThemeData.dark());
-          },
-        ),
-      ),
-      body: Center(
-        child: SizedBox(
-          height: 300,
-          width: 300,
-          child: ElevatedButton(
-            onPressed: () {
-              Get.toNamed('/second?id=123');
-            },
-            child: const Text('next screen'),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class SecondController extends GetxController {
-  final textEdit = TextEditingController();
-  @override
-  void onClose() {
-    print('on close second');
-    textEdit.dispose();
-    super.onClose();
-  }
-}
-
-class Second extends StatelessWidget {
-  const Second({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = Get.put(SecondController());
-    print('second rebuild');
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) => print('pop invoked'),
-      child: Scaffold(
+    return GetBuilder<CounterController>(
+      init: CounterController(),
+      builder: (controller) => Scaffold(
         appBar: AppBar(
-          title: Text('page two ${Get.parameters["id"]}'),
+          title: const Text('GetX State Manager Example'),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: controller.increment,
+          child: const Icon(Icons.add),
         ),
         body: Center(
-          child: Column(
-            children: [
-              Expanded(
-                  child: TextField(
-                controller: controller.textEdit,
-              )),
-              SizedBox(
-                height: 300,
-                width: 300,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Get.toNamed('/third');
-                  },
-                  child: const Text('next screen'),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Simple state with GetBuilder',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class Third extends StatelessWidget {
-  const Third({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.red,
-      appBar: AppBar(
-        title: const Text('page three'),
-      ),
-      body: Center(
-        child: SizedBox(
-          height: 300,
-          width: 300,
-          child: ElevatedButton(
-            onPressed: () {
-              Get.offNamedUntil('/fourth', (route) {
-                return Get.currentRoute == '/first';
-              });
-            },
-            child: const Text('go to first screen'),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class Fourth extends StatelessWidget {
-  const Fourth({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.red,
-      appBar: AppBar(
-        title: const Text('page four'),
-      ),
-      body: Center(
-        child: SizedBox(
-          height: 300,
-          width: 300,
-          child: ElevatedButton(
-            onPressed: () {
-              Get.back();
-            },
-            child: const Text('go to first screen'),
+                const SizedBox(height: 12),
+                Text(
+                  '${controller.simpleCount}',
+                  key: const Key('simple_count_text'),
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 32),
+                const Text(
+                  'Reactive state with Obx',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                Obx(
+                  () => Text(
+                    '${controller.rxCount.value}',
+                    key: const Key('rx_count_text'),
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                const Text(
+                  'This example uses MaterialApp + GetX state only.\n'
+                  'No routing, snackbar, translations, or network layer.',
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ),
       ),
